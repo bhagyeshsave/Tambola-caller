@@ -159,8 +159,10 @@ export default function GeneratorScreen() {
           <Pressable
             onPress={() => navigation.navigate("History")}
             hitSlop={12}
+            style={styles.historyButton}
             testID="button-history"
           >
+            <Feather name="list" size={20} color={theme.primary} />
             <ThemedText style={[styles.headerButton, { color: theme.primary }]}>
               History
             </ThemedText>
@@ -337,8 +339,13 @@ const styles = StyleSheet.create({
     padding: Spacing.xs,
   },
   headerButton: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "600",
+  },
+  historyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
   currentNumberSection: {
     alignItems: "center",
