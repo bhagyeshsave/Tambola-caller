@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -15,8 +16,6 @@ import { Feather } from "@expo/vector-icons";
 
 import { ThemedText } from "@/components/ThemedText";
 import { Spacing, BorderRadius } from "@/constants/theme";
-
-const appIcon = require("../../assets/images/icon.png");
 
 interface SplashScreenProps {
   onAnimationComplete: () => void;
@@ -66,9 +65,9 @@ export default function SplashScreen({ onAnimationComplete }: SplashScreenProps)
       >
         <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
           <Image
-            source={appIcon}
+            source={require("../../assets/images/icon.png")}
             style={styles.logo}
-            resizeMode="contain"
+            contentFit="contain"
           />
         </Animated.View>
 

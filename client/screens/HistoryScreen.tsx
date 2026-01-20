@@ -41,9 +41,11 @@ function HistoryItem({ number, order, index }: HistoryItemProps) {
           { backgroundColor: theme.backgroundDefault, borderColor: theme.border },
         ]}
       >
-        <ThemedText style={[styles.historyNumber, { color: theme.primary }]}>
-          {number}
-        </ThemedText>
+        <View style={styles.numberContainer}>
+          <ThemedText style={[styles.historyNumber, { color: theme.primary }]}>
+            {number}
+          </ThemedText>
+        </View>
         <View style={[styles.orderBadge, { backgroundColor: theme.backgroundSecondary }]}>
           <ThemedText style={[styles.orderText, { color: theme.textSecondary }]}>
             #{order}
@@ -240,13 +242,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    overflow: "visible",
+  },
+  numberContainer: {
+    minWidth: 100,
+    paddingLeft: Spacing.md,
+    paddingRight: Spacing.md,
   },
   historyNumber: {
     fontSize: 32,
     fontWeight: "700",
-    minWidth: 80,
-    paddingLeft: Spacing.sm,
+    fontStyle: "normal",
+    letterSpacing: 1,
   },
   orderBadge: {
     paddingHorizontal: Spacing.md,
