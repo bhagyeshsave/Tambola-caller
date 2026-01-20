@@ -168,17 +168,6 @@ export default function GeneratorScreen() {
           },
         ]}
       >
-        <View style={styles.headerLeft}>
-          <Pressable
-            onPress={handleRestart}
-            hitSlop={12}
-            style={styles.headerIconButton}
-            testID="button-restart"
-          >
-            <Feather name="refresh-cw" size={22} color={theme.textSecondary} />
-          </Pressable>
-        </View>
-
         <ThemedText style={[styles.headerTitle, { color: theme.text }]}>
           Lucky Draw
         </ThemedText>
@@ -363,10 +352,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
     zIndex: 10,
-  },
-  headerLeft: {
-    width: 50,
-    alignItems: "flex-start",
   },
   headerRight: {
     flexDirection: "row",
