@@ -8,10 +8,15 @@
     "scheme": "tambolacaller",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "The perfect companion app for hosting Tambola and Housie games. Generate random numbers 1-100, view a live grid display, and track your generation history.",
+    "githubUrl": "",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tambolacaller.app"
     },
     "android": {
+      "package": "com.tambolacaller.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#312E81",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -19,7 +24,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": []
     },
     "web": {
       "output": "single",

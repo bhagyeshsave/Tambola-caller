@@ -99,3 +99,49 @@ Preferred communication style: Simple, everyday language.
 - `REPLIT_DEV_DOMAIN`: Development domain for CORS and API URLs
 - `REPLIT_DOMAINS`: Production domains for CORS
 - `EXPO_PUBLIC_DOMAIN`: Public domain exposed to client for API calls
+
+## App Store Publishing
+
+### Google Play Store
+
+**Prerequisites:**
+1. Expo account at expo.dev
+2. Google Play Developer account ($25 one-time fee)
+3. EAS CLI installed: `npm install -g eas-cli`
+
+**Configuration (already set up):**
+- `app.json` contains Android package name: `com.tambolacaller.app`
+- `app.json` contains versionCode: `1` (increment for each release)
+- `eas.json` contains build profiles for development, preview, and production
+
+**Build Commands:**
+```bash
+eas login                           # Login to Expo
+eas build --platform android        # Build production AAB
+eas build --platform android --profile preview  # Build APK for testing
+```
+
+**Publishing Process:**
+1. Run `eas build --platform android` to create AAB file
+2. Download the AAB from Expo dashboard
+3. Upload to Google Play Console
+4. Complete store listing (description, screenshots, graphics)
+5. Submit for review
+
+**Version Updates:**
+- Increment `version` in app.json for display version (e.g., "1.0.1")
+- Increment `android.versionCode` for each Play Store upload (e.g., 2, 3, 4...)
+
+### iOS App Store
+
+**Prerequisites:**
+1. Apple Developer account ($99/year)
+2. EAS CLI installed
+
+**Configuration (already set up):**
+- `ios.bundleIdentifier`: `com.tambolacaller.app`
+
+**Build Command:**
+```bash
+eas build --platform ios
+```
