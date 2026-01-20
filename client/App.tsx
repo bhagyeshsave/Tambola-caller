@@ -39,10 +39,12 @@ export default function App() {
 
   if (showSplash) {
     return (
-      <GestureHandlerRootView style={styles.root}>
-        <SplashScreen onAnimationComplete={handleSplashComplete} />
-        <StatusBar style="light" />
-      </GestureHandlerRootView>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={styles.root}>
+          <SplashScreen onAnimationComplete={handleSplashComplete} />
+          <StatusBar style="light" />
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
     );
   }
 

@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withDelay,
   withSequence,
   withSpring,
   FadeIn,
@@ -29,6 +29,7 @@ const FEATURES = [
 ];
 
 export default function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
+  const insets = useSafeAreaInsets();
   const logoScale = useSharedValue(0.5);
   const logoOpacity = useSharedValue(0);
 
@@ -56,7 +57,13 @@ export default function SplashScreen({ onAnimationComplete }: SplashScreenProps)
       colors={["#312E81", "#1E1B4B", "#0F0E24"]}
       style={styles.container}
     >
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + Spacing.xxl, paddingBottom: insets.bottom + 80 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
           <Image
             source={appIcon}
@@ -65,7 +72,7 @@ export default function SplashScreen({ onAnimationComplete }: SplashScreenProps)
           />
         </Animated.View>
 
-        <Animated.View entering={FadeIn.delay(400).duration(500)}>
+        <Animated.View entering={FadeIn.delay(400).duration(500)} style={styles.textContainer}>
           <ThemedText style={styles.appName}>Tambola Caller</ThemedText>
           <ThemedText style={styles.tagline}>
             Your Perfect Housie Companion
@@ -86,11 +93,11 @@ export default function SplashScreen({ onAnimationComplete }: SplashScreenProps)
             </Animated.View>
           ))}
         </View>
-      </View>
+      </ScrollView>
 
       <Animated.View
         entering={FadeIn.delay(1500).duration(500)}
-        style={styles.footer}
+        style={[styles.footer, { bottom: insets.bottom + 20 }]}
       >
         <ThemedText style={styles.footerText}>
           Perfect for Tambola & Housie Games
@@ -103,36 +110,40 @@ export default function SplashScreen({ onAnimationComplete }: SplashScreenProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  content: {
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: Spacing.xl,
   },
   logoContainer: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   logo: {
-    width: 140,
-    height: 140,
-    borderRadius: BorderRadius.xl,
+    width: 120,
+    height: 120,
+    borderRadius: BorderRadius.lg,
+  },
+  textContainer: {
+    alignItems: "center",
   },
   appName: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: "800",
     color: "#FFFFFF",
     textAlign: "center",
     marginBottom: Spacing.xs,
   },
   tagline: {
-    fontSize: 16,
+    fontSize: 15,
     color: "rgba(255, 255, 255, 0.7)",
     textAlign: "center",
-    marginBottom: Spacing.xxl,
+    marginBottom: Spacing.xl,
   },
   featuresContainer: {
     gap: Spacing.md,
+    alignItems: "flex-start",
   },
   featureRow: {
     flexDirection: "row",
@@ -148,16 +159,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   featureText: {
-    fontSize: 15,
+    fontSize: 14,
     color: "rgba(255, 255, 255, 0.9)",
     fontWeight: "500",
   },
   footer: {
     position: "absolute",
-    bottom: 60,
+    left: 0,
+    right: 0,
   },
   footerText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "rgba(255, 255, 255, 0.5)",
     textAlign: "center",
   },

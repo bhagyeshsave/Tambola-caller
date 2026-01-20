@@ -240,10 +240,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
+    overflow: "visible",
   },
   historyNumber: {
     fontSize: 32,
     fontWeight: "700",
+    minWidth: 80,
+    paddingLeft: Spacing.sm,
   },
   orderBadge: {
     paddingHorizontal: Spacing.md,
