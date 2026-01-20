@@ -169,7 +169,7 @@ export default function GeneratorScreen() {
         ]}
       >
         <ThemedText style={[styles.headerTitle, { color: theme.text }]}>
-          Lucky Draw
+          Tambola Caller
         </ThemedText>
 
         <View style={styles.headerRight}>

@@ -1,8 +1,8 @@
-# Lucky Draw - Random Number Generator
+# Tambola Caller - Number Generator for Housie/Tambola
 
 ## Overview
 
-Lucky Draw is a cross-platform mobile application built with React Native and Expo that generates truly random numbers (1-100) with session memory to ensure fairness and transparency. The app provides a theatrical presentation of generated numbers with smooth animations, making each number generation feel like an exciting moment of anticipation rather than a simple calculation.
+Tambola Caller is a cross-platform mobile application built with React Native and Expo designed for hosting Tambola (also known as Housie) games. It generates random numbers (1-100) with session memory to ensure each number appears only once per game, providing fairness and transparency. The app features a 100-box grid display, theatrical number presentation with smooth animations, and supports both manual and automatic number calling modes with adjustable speed.
 
 The application follows a client-server architecture where the React Native client handles the UI and local session state, while an Express backend provides API capabilities. The app persists session data locally using AsyncStorage.
 
