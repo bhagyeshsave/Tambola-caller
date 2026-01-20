@@ -1,12 +1,13 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import MainTabNavigator from "@/navigation/MainTabNavigator";
-import ModalScreen from "@/screens/ModalScreen";
+
+import GeneratorScreen from "@/screens/GeneratorScreen";
+import HistoryScreen, { HistoryClearButton } from "@/screens/HistoryScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 
 export type RootStackParamList = {
-  Main: undefined;
-  Modal: undefined;
+  Generator: undefined;
+  History: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -17,16 +18,18 @@ export default function RootStackNavigator() {
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
-        name="Main"
-        component={MainTabNavigator}
-        options={{ headerShown: false }}
+        name="Generator"
+        component={GeneratorScreen}
+        options={{
+          headerShown: false,
+        }}
       />
       <Stack.Screen
-        name="Modal"
-        component={ModalScreen}
+        name="History"
+        component={HistoryScreen}
         options={{
-          presentation: "modal",
-          headerTitle: "Modal",
+          headerTitle: "History",
+          headerRight: () => <HistoryClearButton />,
         }}
       />
     </Stack.Navigator>
