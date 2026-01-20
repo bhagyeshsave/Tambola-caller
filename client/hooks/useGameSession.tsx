@@ -8,8 +8,10 @@ interface GameSessionContextType {
   generatedNumbers: number[];
   availableNumbers: number[];
   isSessionComplete: boolean;
+  isPaused: boolean;
   generateNumber: () => void;
   clearSession: () => void;
+  togglePause: () => void;
   isLoading: boolean;
 }
 
@@ -22,6 +24,7 @@ interface GameSessionProviderProps {
 export function GameSessionProvider({ children }: GameSessionProviderProps) {
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [generatedNumbers, setGeneratedNumbers] = useState<number[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const availableNumbers = Array.from({ length: 100 }, (_, i) => i + 1).filter(
@@ -38,15 +41,16 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
     if (!isLoading) {
       saveSession();
     }
-  }, [generatedNumbers, currentNumber, isLoading]);
+  }, [generatedNumbers, currentNumber, isPaused, isLoading]);
 
   const loadSession = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const { currentNumber: savedCurrent, generatedNumbers: savedGenerated } = JSON.parse(stored);
+        const { currentNumber: savedCurrent, generatedNumbers: savedGenerated, isPaused: savedPaused } = JSON.parse(stored);
         setCurrentNumber(savedCurrent);
         setGeneratedNumbers(savedGenerated || []);
+        setIsPaused(savedPaused || false);
       }
     } catch (error) {
       console.error("Failed to load session:", error);
@@ -59,7 +63,7 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
     try {
       await AsyncStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ currentNumber, generatedNumbers })
+        JSON.stringify({ currentNumber, generatedNumbers, isPaused })
       );
     } catch (error) {
       console.error("Failed to save session:", error);
@@ -67,23 +71,28 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
   };
 
   const generateNumber = useCallback(() => {
-    if (availableNumbers.length === 0) return;
+    if (availableNumbers.length === 0 || isPaused) return;
 
     const randomIndex = Math.floor(Math.random() * availableNumbers.length);
     const newNumber = availableNumbers[randomIndex];
 
     setCurrentNumber(newNumber);
     setGeneratedNumbers((prev) => [...prev, newNumber]);
-  }, [availableNumbers]);
+  }, [availableNumbers, isPaused]);
 
   const clearSession = useCallback(async () => {
     setCurrentNumber(null);
     setGeneratedNumbers([]);
+    setIsPaused(false);
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
     } catch (error) {
       console.error("Failed to clear session:", error);
     }
+  }, []);
+
+  const togglePause = useCallback(() => {
+    setIsPaused((prev) => !prev);
   }, []);
 
   return (
@@ -93,8 +102,10 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
         generatedNumbers,
         availableNumbers,
         isSessionComplete,
+        isPaused,
         generateNumber,
         clearSession,
+        togglePause,
         isLoading,
       }}
     >
