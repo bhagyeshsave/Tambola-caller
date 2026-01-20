@@ -1,0 +1,164 @@
+import React, { useEffect } from "react";
+import { View, StyleSheet, Image } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  withSequence,
+  withSpring,
+  FadeIn,
+  FadeInUp,
+} from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
+
+import { ThemedText } from "@/components/ThemedText";
+import { Spacing, BorderRadius } from "@/constants/theme";
+
+const appIcon = require("../../assets/images/icon.png");
+
+interface SplashScreenProps {
+  onAnimationComplete: () => void;
+}
+
+const FEATURES = [
+  { icon: "grid" as const, text: "100-Number Grid Display" },
+  { icon: "zap" as const, text: "Auto & Manual Modes" },
+  { icon: "clock" as const, text: "Generation History" },
+];
+
+export default function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
+  const logoScale = useSharedValue(0.5);
+  const logoOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    logoOpacity.value = withTiming(1, { duration: 600 });
+    logoScale.value = withSequence(
+      withSpring(1.1, { damping: 8, stiffness: 100 }),
+      withSpring(1, { damping: 12, stiffness: 150 })
+    );
+
+    const timer = setTimeout(() => {
+      onAnimationComplete();
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const logoAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: logoScale.value }],
+    opacity: logoOpacity.value,
+  }));
+
+  return (
+    <LinearGradient
+      colors={["#312E81", "#1E1B4B", "#0F0E24"]}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
+          <Image
+            source={appIcon}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        <Animated.View entering={FadeIn.delay(400).duration(500)}>
+          <ThemedText style={styles.appName}>Tambola Caller</ThemedText>
+          <ThemedText style={styles.tagline}>
+            Your Perfect Housie Companion
+          </ThemedText>
+        </Animated.View>
+
+        <View style={styles.featuresContainer}>
+          {FEATURES.map((feature, index) => (
+            <Animated.View
+              key={feature.text}
+              entering={FadeInUp.delay(800 + index * 150).duration(400)}
+              style={styles.featureRow}
+            >
+              <View style={styles.featureIcon}>
+                <Feather name={feature.icon} size={18} color="#84CC16" />
+              </View>
+              <ThemedText style={styles.featureText}>{feature.text}</ThemedText>
+            </Animated.View>
+          ))}
+        </View>
+      </View>
+
+      <Animated.View
+        entering={FadeIn.delay(1500).duration(500)}
+        style={styles.footer}
+      >
+        <ThemedText style={styles.footerText}>
+          Perfect for Tambola & Housie Games
+        </ThemedText>
+      </Animated.View>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    alignItems: "center",
+    paddingHorizontal: Spacing.xl,
+  },
+  logoContainer: {
+    marginBottom: Spacing.xl,
+  },
+  logo: {
+    width: 140,
+    height: 140,
+    borderRadius: BorderRadius.xl,
+  },
+  appName: {
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginBottom: Spacing.xs,
+  },
+  tagline: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.7)",
+    textAlign: "center",
+    marginBottom: Spacing.xxl,
+  },
+  featuresContainer: {
+    gap: Spacing.md,
+  },
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  featureIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.full,
+    backgroundColor: "rgba(132, 204, 22, 0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureText: {
+    fontSize: 15,
+    color: "rgba(255, 255, 255, 0.9)",
+    fontWeight: "500",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 60,
+  },
+  footerText: {
+    fontSize: 13,
+    color: "rgba(255, 255, 255, 0.5)",
+    textAlign: "center",
+  },
+});
