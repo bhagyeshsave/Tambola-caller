@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "@lucky_draw_session";
+const SETTINGS_KEY = "@lucky_draw_settings";
 
 interface GameSessionContextType {
   currentNumber: number | null;
@@ -9,9 +10,13 @@ interface GameSessionContextType {
   availableNumbers: number[];
   isSessionComplete: boolean;
   isPaused: boolean;
+  isAutoMode: boolean;
+  autoSpeed: number;
   generateNumber: () => void;
   clearSession: () => void;
   togglePause: () => void;
+  setAutoMode: (value: boolean) => void;
+  setAutoSpeed: (value: number) => void;
   isLoading: boolean;
 }
 
@@ -24,7 +29,9 @@ interface GameSessionProviderProps {
 export function GameSessionProvider({ children }: GameSessionProviderProps) {
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [generatedNumbers, setGeneratedNumbers] = useState<number[]>([]);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+  const [isAutoMode, setIsAutoMode] = useState(false);
+  const [autoSpeed, setAutoSpeedState] = useState(2);
   const [isLoading, setIsLoading] = useState(true);
 
   const availableNumbers = Array.from({ length: 100 }, (_, i) => i + 1).filter(
@@ -35,6 +42,7 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
 
   useEffect(() => {
     loadSession();
+    loadSettings();
   }, []);
 
   useEffect(() => {
@@ -43,6 +51,12 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
     }
   }, [generatedNumbers, currentNumber, isPaused, isLoading]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      saveSettings();
+    }
+  }, [isAutoMode, autoSpeed, isLoading]);
+
   const loadSession = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -50,12 +64,25 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
         const { currentNumber: savedCurrent, generatedNumbers: savedGenerated, isPaused: savedPaused } = JSON.parse(stored);
         setCurrentNumber(savedCurrent);
         setGeneratedNumbers(savedGenerated || []);
-        setIsPaused(savedPaused || false);
+        setIsPaused(savedPaused !== undefined ? savedPaused : true);
       }
     } catch (error) {
       console.error("Failed to load session:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(SETTINGS_KEY);
+      if (stored) {
+        const { isAutoMode: savedAutoMode, autoSpeed: savedAutoSpeed } = JSON.parse(stored);
+        setIsAutoMode(savedAutoMode || false);
+        setAutoSpeedState(savedAutoSpeed || 2);
+      }
+    } catch (error) {
+      console.error("Failed to load settings:", error);
     }
   };
 
@@ -67,6 +94,17 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
       );
     } catch (error) {
       console.error("Failed to save session:", error);
+    }
+  };
+
+  const saveSettings = async () => {
+    try {
+      await AsyncStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({ isAutoMode, autoSpeed })
+      );
+    } catch (error) {
+      console.error("Failed to save settings:", error);
     }
   };
 
@@ -83,7 +121,7 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
   const clearSession = useCallback(async () => {
     setCurrentNumber(null);
     setGeneratedNumbers([]);
-    setIsPaused(false);
+    setIsPaused(true);
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
     } catch (error) {
@@ -95,6 +133,17 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
     setIsPaused((prev) => !prev);
   }, []);
 
+  const setAutoMode = useCallback((value: boolean) => {
+    setIsAutoMode(value);
+    if (value) {
+      setIsPaused(true);
+    }
+  }, []);
+
+  const setAutoSpeed = useCallback((value: number) => {
+    setAutoSpeedState(Math.max(1, Math.min(10, value)));
+  }, []);
+
   return (
     <GameSessionContext.Provider
       value={{
@@ -103,9 +152,13 @@ export function GameSessionProvider({ children }: GameSessionProviderProps) {
         availableNumbers,
         isSessionComplete,
         isPaused,
+        isAutoMode,
+        autoSpeed,
         generateNumber,
         clearSession,
         togglePause,
+        setAutoMode,
+        setAutoSpeed,
         isLoading,
       }}
     >

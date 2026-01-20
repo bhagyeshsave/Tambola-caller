@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, ScrollView, Modal } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -68,12 +68,15 @@ export default function GeneratorScreen() {
     generatedNumbers,
     isSessionComplete,
     isPaused,
+    isAutoMode,
+    autoSpeed,
     generateNumber,
     clearSession,
     togglePause,
   } = useGameSession();
 
   const [showRestartModal, setShowRestartModal] = useState(false);
+  const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
@@ -88,7 +91,7 @@ export default function GeneratorScreen() {
     transform: [{ scale: buttonScale.value }],
   }));
 
-  const handleGenerate = useCallback(() => {
+  const doGenerate = useCallback(() => {
     if (isSessionComplete || isPaused) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -103,12 +106,36 @@ export default function GeneratorScreen() {
     });
   }, [generateNumber, isSessionComplete, isPaused, opacity, scale]);
 
+  useEffect(() => {
+    if (isAutoMode && !isPaused && !isSessionComplete) {
+      autoTimerRef.current = setInterval(() => {
+        doGenerate();
+      }, autoSpeed * 1000);
+    }
+
+    return () => {
+      if (autoTimerRef.current) {
+        clearInterval(autoTimerRef.current);
+        autoTimerRef.current = null;
+      }
+    };
+  }, [isAutoMode, isPaused, isSessionComplete, autoSpeed, doGenerate]);
+
+  const handleGenerate = useCallback(() => {
+    if (isAutoMode) return;
+    doGenerate();
+  }, [isAutoMode, doGenerate]);
+
   const handlePressIn = () => {
-    buttonScale.value = withSpring(0.96, { damping: 15, stiffness: 200 });
+    if (!isAutoMode) {
+      buttonScale.value = withSpring(0.96, { damping: 15, stiffness: 200 });
+    }
   };
 
   const handlePressOut = () => {
-    buttonScale.value = withSpring(1, { damping: 15, stiffness: 200 });
+    if (!isAutoMode) {
+      buttonScale.value = withSpring(1, { damping: 15, stiffness: 200 });
+    }
   };
 
   const handleRestart = () => {
@@ -137,6 +164,7 @@ export default function GeneratorScreen() {
           styles.header,
           {
             paddingTop: insets.top + Spacing.sm,
+            backgroundColor: theme.backgroundRoot,
           },
         ]}
       >
@@ -157,15 +185,20 @@ export default function GeneratorScreen() {
 
         <View style={styles.headerRight}>
           <Pressable
+            onPress={() => navigation.navigate("Settings")}
+            hitSlop={12}
+            style={styles.headerIconButton}
+            testID="button-settings"
+          >
+            <Feather name="settings" size={22} color={theme.textSecondary} />
+          </Pressable>
+          <Pressable
             onPress={() => navigation.navigate("History")}
             hitSlop={12}
             style={styles.historyButton}
             testID="button-history"
           >
-            <Feather name="list" size={20} color={theme.primary} />
-            <ThemedText style={[styles.headerButton, { color: theme.primary }]}>
-              History
-            </ThemedText>
+            <Feather name="clock" size={20} color={theme.primary} />
           </Pressable>
         </View>
       </View>
@@ -195,7 +228,11 @@ export default function GeneratorScreen() {
           </ThemedText>
         ) : currentNumber === null ? (
           <ThemedText style={[styles.statusText, { color: theme.textSecondary }]}>
-            Tap Generate to start
+            {isAutoMode ? "Tap play to start auto-generation" : "Tap Generate to start"}
+          </ThemedText>
+        ) : isAutoMode && !isPaused ? (
+          <ThemedText style={[styles.statusText, { color: theme.accent }]}>
+            Auto-generating every {autoSpeed}s
           </ThemedText>
         ) : null}
       </View>
@@ -220,7 +257,10 @@ export default function GeneratorScreen() {
       <View
         style={[
           styles.bottomSection,
-          { paddingBottom: insets.bottom + Spacing.lg },
+          { 
+            paddingBottom: insets.bottom + Spacing.lg,
+            backgroundColor: theme.backgroundRoot,
+          },
         ]}
       >
         <ThemedText style={[styles.sessionInfo, { color: theme.textSecondary }]}>
@@ -248,16 +288,16 @@ export default function GeneratorScreen() {
               onPress={handleGenerate}
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
-              disabled={isSessionComplete || isPaused}
+              disabled={isSessionComplete || isPaused || isAutoMode}
               style={[
                 styles.generateButton,
                 { backgroundColor: theme.accent },
-                (isSessionComplete || isPaused) && { opacity: 0.5 },
+                (isSessionComplete || isPaused || isAutoMode) && { opacity: 0.5 },
               ]}
               testID="button-generate"
             >
               <ThemedText style={styles.generateButtonText}>
-                Generate
+                {isAutoMode ? "Auto Mode" : "Generate"}
               </ThemedText>
             </Pressable>
           </Animated.View>
@@ -321,15 +361,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: Spacing.lg,
-    height: 56,
+    paddingBottom: Spacing.sm,
+    zIndex: 10,
   },
   headerLeft: {
-    width: 80,
+    width: 50,
     alignItems: "flex-start",
   },
   headerRight: {
-    width: 80,
-    alignItems: "flex-end",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
   },
   headerTitle: {
     fontSize: 18,
@@ -343,9 +385,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   historyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    padding: Spacing.xs,
   },
   currentNumberSection: {
     alignItems: "center",
