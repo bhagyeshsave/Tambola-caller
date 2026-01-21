@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.tambolacaller.app",
-      "versionCode": 1,
+      "versionCode": 1.1,
       "adaptiveIcon": {
         "backgroundColor": "#312E81",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
