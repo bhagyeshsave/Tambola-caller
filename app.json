@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tambola Caller",
     "slug": "tambola-caller",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tambolacaller",
@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.tambolacaller.app",
-      "versionCode": 1,
+      "versionCode": 1.1,
       "adaptiveIcon": {
         "backgroundColor": "#312E81",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
